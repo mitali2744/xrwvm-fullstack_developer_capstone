@@ -3,10 +3,14 @@
 from django.conf.urls.static import static
 from django.conf import settings
 # from . import views
+from django.urls import path
+from . import views
+
 
 app_name = 'djangoapp'
 urlpatterns = [
     # # path for registration
+    path(route='get_cars', view=views.get_cars, name ='getcars'),
 
     # path for login
     # path(route='login', view=views.login_user, name='login'),

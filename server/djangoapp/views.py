@@ -13,12 +13,11 @@ from django.contrib.auth import login, authenticate
 import logging
 import json
 from django.views.decorators.csrf import csrf_exempt
-# from .populate import initiate
-
+from .populate import initiate  # <-- Make sure populate.py exists with initiate() function
+from .models import CarMake, CarModel
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
-
 
 # Create your views here.
 
@@ -37,6 +36,26 @@ def login_user(request):
         login(request, user)
         data = {"userName": username, "status": "Authenticated"}
     return JsonResponse(data)
+
+# --- NEW CODE STARTS HERE ---
+@csrf_exempt  # Avoid CSRF error for cloud lab testing
+def get_cars(request):
+    # Check if CarMake table is empty
+    count = CarMake.objects.count()
+    if count == 0:
+        initiate()  # populate data if empty
+
+    # Get all car models with related car make
+    car_models = CarModel.objects.select_related('car_make')
+    cars = []
+    for car_model in car_models:
+        cars.append({
+            "CarModel": car_model.name,
+            "CarMake": car_model.car_make.name
+        })
+    return JsonResponse({"CarModels": cars})
+
+# --- NEW CODE ENDS HERE ---
 
 # Create a `logout_request` view to handle sign out request
 # def logout_request(request):
